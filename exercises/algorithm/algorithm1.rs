@@ -2,7 +2,7 @@
 	single linked list merge
 	This problem requires you to merge two ordered singly linked lists into one ordered singly linked list
 */
-// I AM NOT DONE
+
 
 use std::fmt::{self, Display, Formatter};
 use std::ptr::NonNull;
@@ -69,14 +69,42 @@ impl<T> LinkedList<T> {
             },
         }
     }
-	pub fn merge(list_a:LinkedList<T>,list_b:LinkedList<T>) -> Self
+	pub fn merge(mut list_a:LinkedList<T>,mut list_b:LinkedList<T>) -> Self
+    where 
+        T: std::cmp::PartialOrd + Copy
 	{
 		//TODO
-		Self {
-            length: 0,
-            start: None,
-            end: None,
+        // 两个list都为空，返回默认
+        if list_a.length == 0 && list_b.length == 0 {
+            return Self::default();
         }
+        let mut list = Self::default();
+        let mut i:u32 = 0;  // 遍历list_a
+        let mut j:u32 = 0;  // 遍历list_b
+        
+        // 参数列表没有mut，说明是copy
+        while i < list_a.length && j < list_b.length {
+            let value_a = list_a.get(i as i32).unwrap();
+            let value_b = list_b.get(j as i32).unwrap();
+            if *value_a < *value_b {
+                i += 1;
+                list.add(*value_a);
+            }
+            else {
+                j += 1;
+                list.add(*value_b);
+            }
+        }
+        // 把剩下的插入list
+        while i < list_a.length {
+            list.add(*(list_a.get(i as i32).unwrap()));
+            i += 1;
+        }
+        while j < list_b.length {
+            list.add(*(list_b.get(j as i32).unwrap()));
+            j += 1;
+        }
+        list
 	}
 }
 
