@@ -2,7 +2,7 @@
 	heap
 	This question requires you to implement a binary heap function
 */
-// I AM NOT DONE
+
 
 use std::cmp::Ord;
 use std::default::Default;
@@ -37,7 +37,26 @@ where
     }
 
     pub fn add(&mut self, value: T) {
+        println!("add");
         //TODO
+        self.items.push(value);
+        self.count += 1;
+        // 向上调整
+        let mut curIdx = self.count;
+        let mut parentIdx = self.parent_idx(self.count);
+        while parentIdx != 0 {
+            dbg!(parentIdx);
+            let parent_value = &self.items[parentIdx];
+            let cur_value = &self.items[curIdx];
+            if (self.comparator)(cur_value, parent_value) {
+                self.items.swap(curIdx, parentIdx);
+                curIdx = parentIdx;
+                parentIdx = self.parent_idx(curIdx);
+            }
+            else {
+                break;
+            }
+        }
     }
 
     fn parent_idx(&self, idx: usize) -> usize {
@@ -58,7 +77,12 @@ where
 
     fn smallest_child_idx(&self, idx: usize) -> usize {
         //TODO
-		0
+		if self.count >= 1 {
+            1
+        }
+        else {
+            0
+        }
     }
 }
 
@@ -84,8 +108,35 @@ where
     type Item = T;
 
     fn next(&mut self) -> Option<T> {
+        println!("next");
         //TODO
-		None
+        if self.count == 0 {
+            return None;
+        }
+        else {
+            // 交换1和count位置的
+            self.items.swap(1, self.count);
+            // 调整堆
+            self.count -= 1;
+            let mut idx = 1;
+            while self.left_child_idx(idx) <= self.count {
+                let mut min_child_idx = self.left_child_idx(idx);
+                if self.right_child_idx(idx) <= self.count && (self.comparator)(&self.items[self.right_child_idx(idx)], &self.items[self.left_child_idx(idx)]) {
+                    min_child_idx += 1;
+                }
+                // 调整
+                if (self.comparator)(&self.items[min_child_idx], &self.items[idx]) {
+                    // 交换
+                    self.items.swap(idx, min_child_idx);
+                    idx = min_child_idx;
+                }
+                else {
+                    break;
+                }
+            }
+            self.items.pop()
+            // 移除count位置的
+        }
     }
 }
 
@@ -118,17 +169,20 @@ mod tests {
     use super::*;
     #[test]
     fn test_empty_heap() {
+        dbg!("test1");
         let mut heap = MaxHeap::new::<i32>();
         assert_eq!(heap.next(), None);
     }
 
     #[test]
     fn test_min_heap() {
+        dbg!("test2");
         let mut heap = MinHeap::new();
         heap.add(4);
         heap.add(2);
         heap.add(9);
         heap.add(11);
+        dbg!("finish add");
         assert_eq!(heap.len(), 4);
         assert_eq!(heap.next(), Some(2));
         assert_eq!(heap.next(), Some(4));
